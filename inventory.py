@@ -22,6 +22,8 @@ class Warehouse:
 
     def cancel_reserve(self, sku, qty):
         """Отмена резерва — товар возвращается на склад."""
+        if qty == 0:
+            return  # Nothing to cancel
         if self.reserved.get(sku, 0) < qty:
             raise ValueError("not reserved enough")
         self.reserved[sku] -= qty
@@ -29,12 +31,12 @@ class Warehouse:
 
     def ship(self, sku, qty):
         """Отгрузка со склада (уменьшает доступный остаток)."""
-        if qty < 0:
-            qty = -qty
+        if qty <= 0:
+            raise ValueError("qty must be positive")
         if self.stock.get(sku, 0) < qty:
             raise ValueError("not enough stock")
         self.stock[sku] -= qty
 
     def available(self, sku):
-        """Доступный остаток = склад + резерв."""
-        return self.stock.get(sku, 0) + self.reserved.get(sku, 0)
+        """Доступный остаток = только склад (резерв уже вычтен)."""
+        return self.stock.get(sku, 0)
